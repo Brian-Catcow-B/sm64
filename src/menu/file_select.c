@@ -3132,27 +3132,13 @@ s32 lvl_init_menu_values_and_cursor_pos(UNUSED s32 arg, UNUSED s32 unused) {
     sSelectedButtonID = MENU_BUTTON_NONE;
     sCurrentMenuLevel = MENU_LAYER_MAIN;
     sTextBaseAlpha = 0;
-    // Place the cursor over the save file that was being played.
+    // Used to place the cursor over the save file that was being played.
     // gCurrSaveFileNum is 1 by default when the game boots, as such
-    // the cursor will point on Mario A save file.
-    switch (gCurrSaveFileNum) {
-        case 1: // File A
-            sCursorPos[0] = -94.0f;
-            sCursorPos[1] = 46.0f;
-            break;
-        case 2: // File B
-            sCursorPos[0] = 24.0f;
-            sCursorPos[1] = 46.0f;
-            break;
-        case 3: // File C
-            sCursorPos[0] = -94.0f;
-            sCursorPos[1] = 5.0f;
-            break;
-        case 4: // File D
-            sCursorPos[0] = 24.0f;
-            sCursorPos[1] = 5.0f;
-            break;
-    }
+    // before the cursor will point on Mario A save file.
+    // [0] = avg(-94, 24) = -35
+    // [1] = avg(46, 5) = 25.5
+    sCursorPos[0] = -35.0f;
+    sCursorPos[1] = 25.5f;
     sClickPos[0] = -10000;
     sClickPos[1] = -10000;
     sCursorClickingTimer = 0;
