@@ -27,4 +27,28 @@ void stub_behavior_script_2(void);
 
 void cur_obj_update(void);
 
+// chaos stuff
+
+void strncpy(u32 a_max_copy, char* a_dst_str, const char* a_src_str);
+
+void chaos_init(void);
+void chaos_update(void);
+
+#define CHAOS_CODE_DETAILS_NAME_BUFLEN 10
+typedef struct chaos_code_details_t {
+    char m_shortname[CHAOS_CODE_DETAILS_NAME_BUFLEN];
+    u32 m_stage_weight;
+    u32 m_castle_weight;
+} chaos_code_details_t;
+
+typedef enum chaos_code_type_e {
+    // COMMON
+    cCHAOS_CODE_KICK_DIVE_SWAP,
+    // end
+    cCHAOS_CODE_COUNT,
+    cCHAOS_CODE_NONE = cCHAOS_CODE_COUNT
+} chaos_code_type_e;
+
+u8 chaos_num_instances_of_code(chaos_code_type_e a_type);
+
 #endif // BEHAVIOR_SCRIPT_H

@@ -24,13 +24,18 @@ extern f32 gSineTable[];
 extern f32 gCosineTable[];
 #endif
 
-#define sins(x) gSineTable[(u16) (x) >> 4]
-#define coss(x) gCosineTable[(u16) (x) >> 4]
+//#define sins(x) gSineTable[(u16) (x) >> 4]
+//#define coss(x) gCosineTable[(u16) (x) >> 4]
+#define sins(x) sin_fn(x)
+#define coss(x) cos_fn(x)
 
 #define min(a, b) ((a) <= (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
 #define sqr(x) ((x) * (x))
+
+f32 sin_fn(s32 x);
+f32 cos_fn(s32 x);
 
 void *vec3f_copy(Vec3f dest, Vec3f src);
 void *vec3f_set(Vec3f dest, f32 x, f32 y, f32 z);

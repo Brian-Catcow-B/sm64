@@ -4,6 +4,7 @@
 #include "area.h"
 #include "audio/external.h"
 #include "camera.h"
+#include "engine/behavior_script.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
 #include "game_init.h"
@@ -106,8 +107,10 @@ s32 check_fall_damage(struct MarioState *m, u32 hardFallAction) {
 }
 
 s32 check_kick_or_dive_in_air(struct MarioState *m) {
+    u8 kick_dive_swaps;
     if (m->input & INPUT_B_PRESSED) {
-        return set_mario_action(m, m->forwardVel > 28.0f ? ACT_DIVE : ACT_JUMP_KICK, 0);
+        kick_dive_swaps = chaos_num_instances_of_code(cCHAOS_CODE_KICK_DIVE_SWAP);
+        return set_mario_action(m, ((m->forwardVel > 28.0f) == (kick_dive_swaps % 2)) ? ACT_DIVE : ACT_JUMP_KICK, 0);
     }
     return FALSE;
 }

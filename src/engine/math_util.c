@@ -4,6 +4,7 @@
 #include "engine/graph_node.h"
 #include "math_util.h"
 #include "surface_collision.h"
+#include "engine/behavior_script.h"
 
 #include "trig_tables.inc.c"
 
@@ -23,6 +24,21 @@ int gSplineState;
   #pragma GCC diagnostic ignored "-Wreturn-local-addr"
 #endif
 #endif
+
+f32 sin_fn(s32 x) {
+    // sin(x) = x can crash
+    //if (random_u16() % 64 == 0)
+        //return (f32) min(1, max(-1, x/2));
+    // phase shift is fine it seems
+    //return gSineTable[(u16) (x + 512) >> 4];
+    // coefficient > 1 can crash but models look very funny
+    //return 1.2 * gSineTable[(u16) (x) >> 4];
+    return gSineTable[(u16) (x) >> 4];
+}
+
+f32 cos_fn(s32 x) {
+    return gCosineTable[(u16) (x) >> 4];
+}
 
 /// Copy vector 'src' to 'dest'
 void *vec3f_copy(Vec3f dest, Vec3f src) {
@@ -498,6 +514,8 @@ void mtxf_mul(Mat4 dest, Mat4 a, Mat4 b) {
     entry0 = a[0][0];
     entry1 = a[0][1];
     entry2 = a[0][2];
+    // game seems to be "fine" with this one and it looks and plays funny
+    //temp[0][0] = entry0 * b[0][0] + entry1 * b[1][0] + entry2 * b[2][0] + 0.1;
     temp[0][0] = entry0 * b[0][0] + entry1 * b[1][0] + entry2 * b[2][0];
     temp[0][1] = entry0 * b[0][1] + entry1 * b[1][1] + entry2 * b[2][1];
     temp[0][2] = entry0 * b[0][2] + entry1 * b[1][2] + entry2 * b[2][2];

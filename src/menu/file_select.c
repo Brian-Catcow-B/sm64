@@ -3162,6 +3162,7 @@ s32 lvl_init_menu_values_and_cursor_pos(UNUSED s32 arg, UNUSED s32 unused) {
         }
     }
 #endif
+    chaos_init();
     //! no return value
 #ifdef AVOID_UB
     return 0;
