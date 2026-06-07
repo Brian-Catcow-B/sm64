@@ -110,7 +110,11 @@ s32 check_kick_or_dive_in_air(struct MarioState *m) {
     u8 kick_dive_swaps;
     if (m->input & INPUT_B_PRESSED) {
         kick_dive_swaps = chaos_num_instances_of_code(cCHAOS_CODE_KICK_DIVE_SWAP);
-        return set_mario_action(m, ((m->forwardVel > 28.0f) == (kick_dive_swaps % 2)) ? ACT_DIVE : ACT_JUMP_KICK, 0);
+        if (kick_dive_swaps % 2) {
+            return set_mario_action(m, m->forwardVel > 28.0f ? ACT_JUMP_KICK : ACT_DIVE, 0);
+        } else {
+            return set_mario_action(m, m->forwardVel > 28.0f ? ACT_DIVE : ACT_JUMP_KICK, 0);
+        }
     }
     return FALSE;
 }

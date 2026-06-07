@@ -12,6 +12,7 @@
 #include "game/object_helpers.h"
 #include "game/object_list_processor.h"
 #include "graph_node.h"
+#include "game/print.h"
 #include "surface_collision.h"
 
 // Macros for retrieving arguments from behavior scripts.
@@ -1006,7 +1007,8 @@ void cur_obj_update(void) {
 
 typedef struct chaos_entry_t {
     chaos_code_type_e m_type;
-    u32 m_global_timer_end_time;
+    u32 m_passed_time;
+    u32 m_end_time;
 } chaos_entry_t;
 
 #define NUM_CHAOS_ACTIVE_ENTRIES 16
@@ -1045,13 +1047,17 @@ void strncpy(u32 a_max_copy, char* a_dst_str, const char* a_src_str) {
 #define WAIT_BEFORE_FIRST_CODES 1
 
 void chaos_init(void) {
+    u8 lc;
     u8 i;
     u32 code_type_int;
     gCurrentLevelClass = cLEVEL_CLASS_CASTLE;
     // fill with none and wait some seconds before rolling
-    for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
-        gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type = cCHAOS_CODE_NONE;
-        gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_global_timer_end_time = WAIT_BEFORE_FIRST_CODES * FPS;
+    for (lc = 0; lc < cLEVEL_CLASS_COUNT; lc++) {
+        for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
+            gChaosActiveEntries[(u32) lc][i].m_type = cCHAOS_CODE_NONE;
+            gChaosActiveEntries[(u32) lc][i].m_passed_time = 0;
+            gChaosActiveEntries[(u32) lc][i].m_end_time = WAIT_BEFORE_FIRST_CODES * FPS;
+        }
     }
     // add weights into globals
     for (i = 0; i < (u8) cLEVEL_CLASS_COUNT; i++) {
@@ -1073,9 +1079,12 @@ void chaos_update(void)
         // CHAOS_TODO: apply something like 20% reroll to each code
     } else {
         // no change between castle and stage from last frame to this
+        print_text_fmt_int(10, 20, "%d", gChaosActiveEntries[(u32) gCurrentLevelClass][0].m_end_time);
         for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
-            if (gGlobalTimer == gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_global_timer_end_time) {
+            if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_passed_time >= gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_end_time) {
                 chaos_roll_entry(&gChaosActiveEntries[(u32) gCurrentLevelClass][i]);
+            } else {
+                gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_passed_time++;
             }
         }
     }
@@ -1153,7 +1162,7 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
     if (none_rng % NONE_CHANCE_DENOM < NONE_CHANCE_NUMER) {
         // rolled none for new value
         a_entry->m_type = cCHAOS_CODE_NONE;
-        a_entry->m_global_timer_end_time = ((u32) time_rng) + gGlobalTimer;
+        a_entry->m_end_time = ((u32) time_rng);
         return;
     }
     code_rng = random_u32() % gChaosTotalWeight[(u32) gCurrentLevelClass];
@@ -1162,7 +1171,7 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
         passed_weight += (gCurrentLevelClass == cLEVEL_CLASS_CASTLE) ? ccd.m_castle_weight : ccd.m_stage_weight;
         if (code_rng < passed_weight) {
             a_entry->m_type = (chaos_code_type_e) chaos_code_int;
-            a_entry->m_global_timer_end_time = ((u32) time_rng) + gGlobalTimer;
+            a_entry->m_end_time = ((u32) time_rng);
             break;
         }
     }
