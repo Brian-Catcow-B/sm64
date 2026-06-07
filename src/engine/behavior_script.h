@@ -42,6 +42,9 @@ typedef struct chaos_code_details_t {
 } chaos_code_details_t;
 
 typedef enum chaos_code_type_e {
+    // RARE
+    cCHAOS_CODE_SIN_PHASE_SHIFT,
+    cCHAOS_CODE_COS_PHASE_SHIFT,
     // COMMON
     cCHAOS_CODE_KICK_DIVE_SWAP,
     // end
@@ -50,5 +53,7 @@ typedef enum chaos_code_type_e {
 } chaos_code_type_e;
 
 u8 chaos_num_instances_of_code(chaos_code_type_e a_type);
+s16 chaos_sum_active_sin_phase_shift(void);
+s16 chaos_sum_active_cos_phase_shift(void);
 
 #endif // BEHAVIOR_SCRIPT_H

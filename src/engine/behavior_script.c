@@ -1005,10 +1005,16 @@ void cur_obj_update(void) {
 
 // chaos stuff
 
+typedef union chaos_code_data_t {
+    s16 u_sin_phase_shift;
+    s16 u_cos_phase_shift;
+} chaos_code_data_t;
+
 typedef struct chaos_entry_t {
     chaos_code_type_e m_type;
     u32 m_passed_time;
     u32 m_end_time;
+    chaos_code_data_t m_code_data;
 } chaos_entry_t;
 
 #define NUM_CHAOS_ACTIVE_ENTRIES 16
@@ -1101,6 +1107,28 @@ u8 chaos_num_instances_of_code(chaos_code_type_e a_type) {
     return n;
 }
 
+s16 chaos_sum_active_sin_phase_shift(void) {
+    u8 i;
+    s16 sum = 0;
+    for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
+        if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type == cCHAOS_CODE_SIN_PHASE_SHIFT) {
+            sum += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_sin_phase_shift;
+        }
+    }
+    return sum;
+}
+
+s16 chaos_sum_active_cos_phase_shift(void) {
+    u8 i;
+    s16 sum = 0;
+    for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
+        if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type == cCHAOS_CODE_COS_PHASE_SHIFT) {
+            sum += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_cos_phase_shift;
+        }
+    }
+    return sum;
+}
+
 //priv defn start
 #define FILL_CCDETAILS_RETURN(ccdetails, strliteral_shortname, levelweight, castleweight) \
     strncpy(CHAOS_CODE_DETAILS_NAME_BUFLEN, ccdetails.m_shortname, strliteral_shortname); \
@@ -1123,6 +1151,8 @@ chaos_code_details_t chaos_code_details_from_type(chaos_code_type_e a_type) {
     chaos_code_details_t ccd_out;
     switch (a_type)
     {
+        case cCHAOS_CODE_SIN_PHASE_SHIFT: FILL_CCDETAILS_RETURN(ccd_out, "sinphase", COMMON, COMMON); // CHAOS_TODO change to rare
+        case cCHAOS_CODE_COS_PHASE_SHIFT: FILL_CCDETAILS_RETURN(ccd_out, "cosphase", COMMON, COMMON); // CHAOS_TODO change to rare
         case cCHAOS_CODE_KICK_DIVE_SWAP: FILL_CCDETAILS_RETURN(ccd_out, "kckdveswp", COMMON * 2, COMMON);
         case cCHAOS_CODE_NONE: FILL_CCDETAILS_RETURN(ccd_out, "none", 0, 0);
     }
@@ -1154,6 +1184,7 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
     u16 time_rng;
     u32 code_rng;
     chaos_code_details_t ccd;
+    a_entry->m_passed_time = 0;
     if (big_time_rng % RARE_HUGE_TIME_CHANCE_RECIP == 0) {
         time_rng = RARE_HUGE_TIME * FPS;
     } else {
@@ -1174,6 +1205,18 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
             a_entry->m_end_time = ((u32) time_rng);
             break;
         }
+    }
+
+    // code data
+    switch (a_entry->m_type) {
+        case cCHAOS_CODE_SIN_PHASE_SHIFT:
+            a_entry->m_code_data.u_sin_phase_shift = (s16) (random_u16() % 512 - 256);
+            break;
+        case cCHAOS_CODE_COS_PHASE_SHIFT:
+            a_entry->m_code_data.u_cos_phase_shift = (s16) (random_u16() % 512 - 256);
+            break;
+        case cCHAOS_CODE_KICK_DIVE_SWAP: break;
+        case cCHAOS_CODE_NONE: break;
     }
 }
 //priv defn end
