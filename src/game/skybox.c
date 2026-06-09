@@ -1,6 +1,7 @@
 #include <PR/ultratypes.h>
 
 #include "area.h"
+#include "engine/behavior_script.h"
 #include "engine/math_util.h"
 #include "geo_misc.h"
 #include "gfx_dimensions.h"
@@ -221,6 +222,7 @@ void draw_skybox_tile_grid(Gfx **dlist, s8 background, s8 player, s8 colorIndex)
     s32 row;
     s32 col;
 
+    if (chaos_is_vfx_common_effect_active(cCHAOS_VFX_COMMON_NO_SKYBOX_RENDER)) { return; }
     for (row = 0; row < 3; row++) {
         for (col = 0; col < 3; col++) {
             s32 tileIndex = sSkyBoxInfo[player].upperLeftTile + row * SKYBOX_COLS + col;

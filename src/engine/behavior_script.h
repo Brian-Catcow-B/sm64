@@ -52,13 +52,21 @@ typedef enum chaos_code_type_e {
     cCHAOS_CODE_COS_PHASE_SHIFT,
     // COMMON
     cCHAOS_CODE_KICK_DIVE_SWAP,
+    cCHAOS_CODE_VFX_COMMON,
     // end
     cCHAOS_CODE_COUNT,
     cCHAOS_CODE_NONE = cCHAOS_CODE_COUNT
 } chaos_code_type_e;
 
+typedef enum chaos_vfx_common_e {
+    cCHAOS_VFX_COMMON_NO_SKYBOX_RENDER,
+    cCHAOS_VFX_COMMON_COUNT
+} chaos_vfx_common_e;
+
 u8 chaos_num_instances_of_code(chaos_code_type_e a_type);
+
 s16 chaos_sum_active_sin_phase_shift(void);
 s16 chaos_sum_active_cos_phase_shift(void);
+u8 chaos_is_vfx_common_effect_active(chaos_vfx_common_e a_effect);
 
 #endif // BEHAVIOR_SCRIPT_H

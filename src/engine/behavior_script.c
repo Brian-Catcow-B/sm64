@@ -1008,6 +1008,7 @@ void cur_obj_update(void) {
 typedef union chaos_code_data_t {
     s16 u_sin_phase_shift;
     s16 u_cos_phase_shift;
+    chaos_vfx_common_e u_vfx_common;
 } chaos_code_data_t;
 
 typedef struct chaos_entry_t {
@@ -1130,6 +1131,16 @@ s16 chaos_sum_active_cos_phase_shift(void) {
     return sum;
 }
 
+u8 chaos_is_vfx_common_effect_active(chaos_vfx_common_e a_effect) {
+    u8 i;
+    for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
+        if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type == cCHAOS_CODE_VFX_COMMON && gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_vfx_common == a_effect) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 //priv defn start
 #define FILL_CCDETAILS_RETURN(ccdetails, strliteral_shortname, stageweight, castleweight) \
     strncpy(CHAOS_CODE_DETAILS_NAME_BUFLEN, ccdetails.m_shortname, strliteral_shortname); \
@@ -1155,6 +1166,7 @@ chaos_code_details_t chaos_code_details_from_type(chaos_code_type_e a_type) {
         case cCHAOS_CODE_SIN_PHASE_SHIFT: FILL_CCDETAILS_RETURN(ccd_out, "sinphase", COMMON, COMMON); // CHAOS_TODO change to rare
         case cCHAOS_CODE_COS_PHASE_SHIFT: FILL_CCDETAILS_RETURN(ccd_out, "cosphase", COMMON, COMMON); // CHAOS_TODO change to rare
         case cCHAOS_CODE_KICK_DIVE_SWAP: FILL_CCDETAILS_RETURN(ccd_out, "kckdveswp", COMMON * 2, COMMON);
+        case cCHAOS_CODE_VFX_COMMON: FILL_CCDETAILS_RETURN(ccd_out, "vfxcommon", COMMON, COMMON);
         case cCHAOS_CODE_NONE: FILL_CCDETAILS_RETURN(ccd_out, "none", 0, 0);
     }
     // CHAOS_TODO: find some way to throw
@@ -1189,7 +1201,7 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
     if (big_time_rng % RARE_HUGE_TIME_CHANCE_RECIP == 0) {
         time_rng = RARE_HUGE_TIME * FPS;
     } else {
-        time_rng = (random_u16() % (COMMON_MAX_TIME - COMMON_MIN_TIME) + COMMON_MIN_TIME) * FPS;
+        time_rng = (random_u16() % (COMMON_MAX_TIME - COMMON_MIN_TIME + 1) + COMMON_MIN_TIME) * FPS;
     }
     if (none_rng % NONE_CHANCE_DENOM < NONE_CHANCE_NUMER) {
         // rolled none for new value
@@ -1212,13 +1224,18 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
     // code data
     switch (a_entry->m_type) {
         case cCHAOS_CODE_SIN_PHASE_SHIFT:
-            a_entry->m_code_data.u_sin_phase_shift = (s16) (random_u16() % 512 - 256);
-            break;
+            //a_entry->m_code_data.u_sin_phase_shift = (s16) (random_u16() % 512 - 256);
+            //break; // identical code result from sin/cos so collapse
         case cCHAOS_CODE_COS_PHASE_SHIFT:
             a_entry->m_code_data.u_cos_phase_shift = (s16) (random_u16() % 512 - 256);
             break;
-        case cCHAOS_CODE_KICK_DIVE_SWAP: break;
-        case cCHAOS_CODE_NONE: break;
+        case cCHAOS_CODE_KICK_DIVE_SWAP:
+            break;
+        case cCHAOS_CODE_VFX_COMMON:
+            a_entry->m_code_data.u_vfx_common = (chaos_vfx_common_e) (random_u16() % (u16) cCHAOS_VFX_COMMON_COUNT);
+            break;
+        case cCHAOS_CODE_NONE:
+            break;
     }
 }
 //priv defn end
