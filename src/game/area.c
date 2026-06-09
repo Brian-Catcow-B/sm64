@@ -393,7 +393,7 @@ void render_game(void) {
         if (D_8032CE78 != NULL) {
             make_viewport_clip_rect(D_8032CE78);
         } else {
-            gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, BORDER_HEIGHT, SCREEN_WIDTH,
+            gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, BORDER_HEIGHT, chaos_is_vfx_common_effect_active(cCHAOS_VFX_LEFT_TRANSITIONS_ONLY) ? SCREEN_WIDTH / 2 : SCREEN_WIDTH,
                           SCREEN_HEIGHT - BORDER_HEIGHT);
         }
 
