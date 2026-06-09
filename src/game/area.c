@@ -7,6 +7,7 @@
 #include "behavior_data.h"
 #include "game_init.h"
 #include "object_list_processor.h"
+#include "engine/behavior_script.h"
 #include "engine/surface_load.h"
 #include "ingame_menu.h"
 #include "screen_transition.h"
@@ -373,7 +374,9 @@ void render_game(void) {
 
         gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, BORDER_HEIGHT, SCREEN_WIDTH,
                       SCREEN_HEIGHT - BORDER_HEIGHT);
-        render_hud();
+        if (!chaos_is_vfx_common_effect_active(cCHAOS_VFX_COMMON_NO_HUD)) {
+            render_hud();
+        }
 
         gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         render_text_labels();

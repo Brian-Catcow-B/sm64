@@ -1018,7 +1018,7 @@ typedef struct chaos_entry_t {
     chaos_code_data_t m_code_data;
 } chaos_entry_t;
 
-#define NUM_CHAOS_ACTIVE_ENTRIES 16
+#define NUM_CHAOS_ACTIVE_ENTRIES 4
 #define FPS 30
 
 static level_class_e gCurrentLevelClass;

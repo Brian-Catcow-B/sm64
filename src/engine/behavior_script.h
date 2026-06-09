@@ -60,6 +60,7 @@ typedef enum chaos_code_type_e {
 
 typedef enum chaos_vfx_common_e {
     cCHAOS_VFX_COMMON_NO_SKYBOX_RENDER,
+    cCHAOS_VFX_COMMON_NO_HUD,
     cCHAOS_VFX_COMMON_COUNT
 } chaos_vfx_common_e;
 
