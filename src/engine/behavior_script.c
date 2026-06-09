@@ -1020,12 +1020,6 @@ typedef struct chaos_entry_t {
 #define NUM_CHAOS_ACTIVE_ENTRIES 16
 #define FPS 30
 
-typedef enum level_class_e {
-    cLEVEL_CLASS_STAGE,
-    cLEVEL_CLASS_CASTLE,
-    cLEVEL_CLASS_COUNT
-} level_class_e;
-
 static level_class_e gCurrentLevelClass;
 static chaos_entry_t gChaosActiveEntries[(u32) cLEVEL_CLASS_COUNT][NUM_CHAOS_ACTIVE_ENTRIES];
 static u32 gChaosTotalWeight[(u32) cLEVEL_CLASS_COUNT];
@@ -1052,10 +1046,16 @@ void strncpy(u32 a_max_copy, char* a_dst_str, const char* a_src_str) {
 
 #define WAIT_BEFORE_FIRST_CODES 1
 
+static char gDEBUGOUT[20];
+static s32 gDEBUGOUT_INT;
 void chaos_init(void) {
     u8 lc;
     u8 i;
     u32 code_type_int;
+    gDEBUGOUT[0] = '%';
+    gDEBUGOUT[1] = 'd';
+    gDEBUGOUT[2] = '\0';
+    gDEBUGOUT_INT = -1;
     gCurrentLevelClass = cLEVEL_CLASS_CASTLE;
     // fill with none and wait some seconds before rolling
     for (lc = 0; lc < cLEVEL_CLASS_COUNT; lc++) {
@@ -1071,21 +1071,22 @@ void chaos_init(void) {
     }
     for (code_type_int = 0; code_type_int < (u32) cCHAOS_CODE_COUNT; code_type_int++) {
         chaos_code_details_t ccd = chaos_code_details_from_type((chaos_code_type_e) code_type_int);
-        gChaosTotalWeight[(u32) cLEVEL_CLASS_STAGE] += ccd.m_stage_weight;
-        gChaosTotalWeight[(u32) cLEVEL_CLASS_CASTLE] += ccd.m_castle_weight;
+        for (i = 0; i < (u8) cLEVEL_CLASS_COUNT; i++) {
+            gChaosTotalWeight[i] += ccd.m_weight[i];
+        }
     }
 }
 
 void chaos_update(void)
 {
     u8 i;
+    print_text_fmt_int(10, 20, gDEBUGOUT, gDEBUGOUT_INT);
     if ((gCurrLevelNum == LEVEL_CASTLE) != (gCurrentLevelClass == cLEVEL_CLASS_CASTLE)) {
         // change between castle and stage from last frame to this
         gCurrentLevelClass = (gCurrLevelNum == LEVEL_CASTLE) ? cLEVEL_CLASS_CASTLE : cLEVEL_CLASS_STAGE;
         // CHAOS_TODO: apply something like 20% reroll to each code
     } else {
         // no change between castle and stage from last frame to this
-        print_text_fmt_int(10, 20, "%d", gChaosActiveEntries[(u32) gCurrentLevelClass][0].m_end_time);
         for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
             if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_passed_time >= gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_end_time) {
                 chaos_roll_entry(&gChaosActiveEntries[(u32) gCurrentLevelClass][i]);
@@ -1130,10 +1131,10 @@ s16 chaos_sum_active_cos_phase_shift(void) {
 }
 
 //priv defn start
-#define FILL_CCDETAILS_RETURN(ccdetails, strliteral_shortname, levelweight, castleweight) \
+#define FILL_CCDETAILS_RETURN(ccdetails, strliteral_shortname, stageweight, castleweight) \
     strncpy(CHAOS_CODE_DETAILS_NAME_BUFLEN, ccdetails.m_shortname, strliteral_shortname); \
-    ccdetails.m_stage_weight = levelweight; \
-    ccdetails.m_castle_weight = castleweight; \
+    ccdetails.m_weight[(u32) cLEVEL_CLASS_STAGE] = stageweight; \
+    ccdetails.m_weight[(u32) cLEVEL_CLASS_CASTLE] = castleweight; \
     return ccdetails
 
 // insanely rare (around 100h)
@@ -1163,7 +1164,7 @@ u32 random_u32(void) {
     u32 result;
     result = random_u16();
     result <<= 16;
-    result &= random_u16();
+    result |= random_u16();
     return result;
 }
 
@@ -1197,9 +1198,10 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
         return;
     }
     code_rng = random_u32() % gChaosTotalWeight[(u32) gCurrentLevelClass];
+    gDEBUGOUT_INT = gChaosTotalWeight[(u32) gCurrentLevelClass];
     for (chaos_code_int = 0; chaos_code_int < (u32) cCHAOS_CODE_COUNT; chaos_code_int++) {
         ccd = chaos_code_details_from_type((chaos_code_type_e) chaos_code_int);
-        passed_weight += (gCurrentLevelClass == cLEVEL_CLASS_CASTLE) ? ccd.m_castle_weight : ccd.m_stage_weight;
+        passed_weight += ccd.m_weight[(u32) gCurrentLevelClass];
         if (code_rng < passed_weight) {
             a_entry->m_type = (chaos_code_type_e) chaos_code_int;
             a_entry->m_end_time = ((u32) time_rng);

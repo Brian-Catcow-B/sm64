@@ -34,11 +34,16 @@ void strncpy(u32 a_max_copy, char* a_dst_str, const char* a_src_str);
 void chaos_init(void);
 void chaos_update(void);
 
+typedef enum level_class_e {
+    cLEVEL_CLASS_STAGE,
+    cLEVEL_CLASS_CASTLE,
+    cLEVEL_CLASS_COUNT
+} level_class_e;
+
 #define CHAOS_CODE_DETAILS_NAME_BUFLEN 10
 typedef struct chaos_code_details_t {
     char m_shortname[CHAOS_CODE_DETAILS_NAME_BUFLEN];
-    u32 m_stage_weight;
-    u32 m_castle_weight;
+    u32 m_weight[(u32) cLEVEL_CLASS_COUNT];
 } chaos_code_details_t;
 
 typedef enum chaos_code_type_e {
