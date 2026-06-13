@@ -258,10 +258,11 @@ void calc_new_obj_vel_and_pos_y(struct Surface *objFloor, f32 objFloorY, f32 obj
     f32 floor_nY = objFloor->normal.y;
     f32 floor_nZ = objFloor->normal.z;
     f32 objFriction;
-    chaos_obj_grav_roll_t ogr = chaos_sum_obj_grav_roll();
+    chaos_random_chance_t rc = chaos_sum_obj_grav_roll();
 
     // Caps vertical speed with a "terminal velocity".
-    if (ogr.m_chance_denominator == 0 || random_u16() % ogr.m_chance_denominator < ogr.m_chance_numerator) {
+    // chaos when y vel doesn't get -= grav
+    if (!ROLL_RANDOM_CHANCE_UNDEF_FALSE(rc)) {
         o->oVelY -= o->oGravity;
     }
     if (o->oVelY > 75.0) {

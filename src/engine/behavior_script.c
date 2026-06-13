@@ -1008,7 +1008,8 @@ void cur_obj_update(void) {
 typedef union chaos_code_data_t {
     s16 u_sin_phase_shift;
     s16 u_cos_phase_shift;
-    chaos_obj_grav_roll_t u_obj_grav_roll;
+    chaos_random_chance_t u_obj_grav_roll;
+    chaos_random_chance_t u_fwd_grav_roll;
     chaos_vfx_common_e u_vfx_common;
 } chaos_code_data_t;
 
@@ -1132,16 +1133,28 @@ s16 chaos_sum_active_cos_phase_shift(void) {
     return sum;
 }
 
-chaos_obj_grav_roll_t chaos_sum_obj_grav_roll(void) {
-    chaos_obj_grav_roll_t ogr = { 0, 0 };
+chaos_random_chance_t chaos_sum_obj_grav_roll(void) {
+    chaos_random_chance_t rc = { 0, 0 };
     u8 i;
     for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
         if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type == cCHAOS_CODE_OBJ_GRAV_ROLL) {
-            ogr.m_chance_numerator += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_obj_grav_roll.m_chance_numerator;
-            ogr.m_chance_denominator += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_obj_grav_roll.m_chance_denominator;
+            rc.m_chance_numerator += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_obj_grav_roll.m_chance_numerator;
+            rc.m_chance_denominator += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_obj_grav_roll.m_chance_denominator;
         }
     }
-    return ogr;
+    return rc;
+}
+
+chaos_random_chance_t chaos_sum_fwd_grav_roll(void) {
+    chaos_random_chance_t rc = { 0, 0 };
+    u8 i;
+    for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
+        if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type == cCHAOS_CODE_FWD_GRAV_ROLL) {
+            rc.m_chance_numerator += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_fwd_grav_roll.m_chance_numerator;
+            rc.m_chance_denominator += gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_fwd_grav_roll.m_chance_denominator;
+        }
+    }
+    return rc;
 }
 
 u8 chaos_is_vfx_common_effect_active(chaos_vfx_common_e a_effect) {
@@ -1180,6 +1193,7 @@ chaos_code_details_t chaos_code_details_from_type(chaos_code_type_e a_type) {
         case cCHAOS_CODE_COS_PHASE_SHIFT: FILL_CCDETAILS_RETURN(ccd_out, "cosphase", RARE, RARE);
         case cCHAOS_CODE_KICK_DIVE_SWAP: FILL_CCDETAILS_RETURN(ccd_out, "kckdveswp", COMMON * 2, COMMON);
         case cCHAOS_CODE_OBJ_GRAV_ROLL: FILL_CCDETAILS_RETURN(ccd_out, "objgrvroll", COMMON, COMMON);
+        case cCHAOS_CODE_FWD_GRAV_ROLL: FILL_CCDETAILS_RETURN(ccd_out, "fwdgrvroll", COMMON, COMMON);
         case cCHAOS_CODE_VFX_COMMON: FILL_CCDETAILS_RETURN(ccd_out, "vfxcommon", COMMON * 3, COMMON * 3);
         case cCHAOS_CODE_NONE: FILL_CCDETAILS_RETURN(ccd_out, "none", 0, 0);
     }
@@ -1248,6 +1262,10 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
         case cCHAOS_CODE_OBJ_GRAV_ROLL:
             a_entry->m_code_data.u_obj_grav_roll.m_chance_numerator = random_u16() % 2 + 1;
             a_entry->m_code_data.u_obj_grav_roll.m_chance_denominator = random_u16() % 6 + 3;
+            break;
+        case cCHAOS_CODE_FWD_GRAV_ROLL:
+            a_entry->m_code_data.u_fwd_grav_roll.m_chance_numerator = random_u16() % 2 + 1;
+            a_entry->m_code_data.u_fwd_grav_roll.m_chance_denominator = random_u16() % 6 + 3;
             break;
         case cCHAOS_CODE_VFX_COMMON:
             a_entry->m_code_data.u_vfx_common = (chaos_vfx_common_e) (random_u16() % (u16) cCHAOS_VFX_COMMON_COUNT);
