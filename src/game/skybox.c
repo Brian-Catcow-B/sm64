@@ -1,7 +1,7 @@
 #include <PR/ultratypes.h>
 
 #include "area.h"
-#include "engine/behavior_script.h"
+#include "engine/chaos.h"
 #include "engine/math_util.h"
 #include "geo_misc.h"
 #include "gfx_dimensions.h"

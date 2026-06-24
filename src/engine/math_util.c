@@ -32,11 +32,12 @@ f32 sin_fn(s32 x) {
     // phase shift is fine it seems
     //return gSineTable[(u16) (x + 512) >> 4];
     // coefficient > 1 can crash but models look very funny
-    //return 1.2 * gSineTable[(u16) (x) >> 4];
+    //return 0.8 * gSineTable[(u16) (x) >> 4];
     return gSineTable[(u16) (x + chaos_sum_active_sin_phase_shift()) >> 4];
 }
 
 f32 cos_fn(s32 x) {
+    //return 0.8 * gCosineTable[(u16) (x) >> 4];
     return gCosineTable[(u16) (x + chaos_sum_active_cos_phase_shift()) >> 4];
 }
 

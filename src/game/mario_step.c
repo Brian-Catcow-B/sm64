@@ -1,7 +1,7 @@
 #include <ultra64.h>
 
 #include "sm64.h"
-#include "engine/behavior_script.h"
+#include "engine/chaos.h"
 #include "engine/math_util.h"
 #include "engine/surface_collision.h"
 #include "mario.h"
