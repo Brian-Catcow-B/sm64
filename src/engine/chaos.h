@@ -26,6 +26,8 @@ typedef enum chaos_code_type_e {
     // RARE
     cCHAOS_CODE_SIN_PHASE_SHIFT,
     cCHAOS_CODE_COS_PHASE_SHIFT,
+    cCHAOS_CODE_SIN_UNIT_INTERVAL_COEFFICIENT,
+    cCHAOS_CODE_COS_UNIT_INTERVAL_COEFFICIENT,
     // COMMON
     cCHAOS_CODE_KICK_DIVE_SWAP,
     cCHAOS_CODE_OBJ_GRAV_ROLL,
@@ -54,6 +56,8 @@ u8 chaos_num_instances_of_code(chaos_code_type_e a_type);
 
 s16 chaos_sum_active_sin_phase_shift(void);
 s16 chaos_sum_active_cos_phase_shift(void);
+f32 chaos_prod_active_sin_ui_coeff(void);
+f32 chaos_prod_active_cos_ui_coeff(void);
 chaos_random_chance_t chaos_sum_obj_grav_roll(void);
 chaos_random_chance_t chaos_sum_fwd_grav_roll(void);
 u8 chaos_is_vfx_common_effect_active(chaos_vfx_common_e a_effect);

@@ -37,6 +37,8 @@ extern f32 gCosineTable[];
 f32 sin_fn(s32 x);
 f32 cos_fn(s32 x);
 
+void math_util_init_chaos(void);
+
 void *vec3f_copy(Vec3f dest, Vec3f src);
 void *vec3f_set(Vec3f dest, f32 x, f32 y, f32 z);
 void *vec3f_add(Vec3f dest, Vec3f a);

@@ -4,7 +4,8 @@
 #include "engine/graph_node.h"
 #include "math_util.h"
 #include "surface_collision.h"
-#include "engine/behavior_script.h"
+#include "engine/chaos.h"
+#include "game/game_init.h"
 
 #include "trig_tables.inc.c"
 
@@ -25,6 +26,14 @@ int gSplineState;
 #endif
 #endif
 
+struct cache_chaos_trig_t {
+    u16 m_global_timer_update_time;
+    s16 m_phase_shift;
+    f32 m_ui_coeff;
+};
+struct cache_chaos_trig_t gCacheChaosSin;
+struct cache_chaos_trig_t gCacheChaosCos;
+
 f32 sin_fn(s32 x) {
     // sin(x) = x can crash
     //if (random_u16() % 64 == 0)
@@ -33,12 +42,31 @@ f32 sin_fn(s32 x) {
     //return gSineTable[(u16) (x + 512) >> 4];
     // coefficient > 1 can crash but models look very funny
     //return 0.8 * gSineTable[(u16) (x) >> 4];
-    return gSineTable[(u16) (x + chaos_sum_active_sin_phase_shift()) >> 4];
+    if (gGlobalTimer != gCacheChaosSin.m_global_timer_update_time) {
+        gCacheChaosSin.m_global_timer_update_time = gGlobalTimer;
+        gCacheChaosSin.m_phase_shift = chaos_sum_active_sin_phase_shift();
+        gCacheChaosSin.m_ui_coeff = chaos_prod_active_sin_ui_coeff();
+    }
+    return gCacheChaosSin.m_ui_coeff * gSineTable[(u16) (x + gCacheChaosSin.m_phase_shift) >> 4];
 }
 
 f32 cos_fn(s32 x) {
     //return 0.8 * gCosineTable[(u16) (x) >> 4];
-    return gCosineTable[(u16) (x + chaos_sum_active_cos_phase_shift()) >> 4];
+    if (gGlobalTimer != gCacheChaosCos.m_global_timer_update_time) {
+        gCacheChaosCos.m_global_timer_update_time = gGlobalTimer;
+        gCacheChaosCos.m_phase_shift = chaos_sum_active_cos_phase_shift();
+        gCacheChaosCos.m_ui_coeff = chaos_prod_active_cos_ui_coeff();
+    }
+    return gCacheChaosCos.m_ui_coeff * gCosineTable[(u16) (x + gCacheChaosCos.m_phase_shift) >> 4];
+}
+
+void math_util_init_chaos(void) {
+    gCacheChaosSin.m_global_timer_update_time = 65535;
+    gCacheChaosSin.m_phase_shift = 0;
+    gCacheChaosSin.m_ui_coeff = 1.0f;
+    gCacheChaosCos.m_global_timer_update_time = 65535;
+    gCacheChaosCos.m_phase_shift = 0;
+    gCacheChaosCos.m_ui_coeff = 1.0f;
 }
 
 /// Copy vector 'src' to 'dest'

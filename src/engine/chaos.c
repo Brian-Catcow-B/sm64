@@ -1,12 +1,15 @@
 #include "chaos.h"
 
 #include "behavior_script.h"
+#include "engine/math_util.h"
 #include "game/area.h"
 #include "game/print.h"
 
 typedef union chaos_code_data_t {
     s16 u_sin_phase_shift;
     s16 u_cos_phase_shift;
+    f32 u_sin_ui_coeff;
+    f32 u_cos_ui_coeff;
     chaos_random_chance_t u_obj_grav_roll;
     chaos_random_chance_t u_fwd_grav_roll;
     chaos_vfx_common_e u_vfx_common;
@@ -59,6 +62,7 @@ void chaos_init(void) {
     gDEBUGOUT[2] = '\0';
     gDEBUGOUT_INT = -1;
     gCurrentLevelClass = cLEVEL_CLASS_CASTLE;
+    math_util_init_chaos();
     // fill with none and wait some seconds before rolling
     for (lc = 0; lc < cLEVEL_CLASS_COUNT; lc++) {
         for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
@@ -132,6 +136,28 @@ s16 chaos_sum_active_cos_phase_shift(void) {
     return sum;
 }
 
+f32 chaos_prod_active_sin_ui_coeff(void) {
+    u8 i;
+    f32 prod = 1.0f;
+    for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
+        if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type == cCHAOS_CODE_SIN_UNIT_INTERVAL_COEFFICIENT) {
+            prod *= gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_sin_ui_coeff;
+        }
+    }
+    return prod;
+}
+
+f32 chaos_prod_active_cos_ui_coeff(void) {
+    u8 i;
+    f32 prod = 1.0f;
+    for (i = 0; i < NUM_CHAOS_ACTIVE_ENTRIES; i++) {
+        if (gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_type == cCHAOS_CODE_COS_UNIT_INTERVAL_COEFFICIENT) {
+            prod *= gChaosActiveEntries[(u32) gCurrentLevelClass][i].m_code_data.u_cos_ui_coeff;
+        }
+    }
+    return prod;
+}
+
 chaos_random_chance_t chaos_sum_obj_grav_roll(void) {
     chaos_random_chance_t rc = { 0, 0 };
     u8 i;
@@ -190,6 +216,8 @@ chaos_code_details_t chaos_code_details_from_type(chaos_code_type_e a_type) {
     {
         case cCHAOS_CODE_SIN_PHASE_SHIFT: FILL_CCDETAILS_RETURN(ccd_out, "sinphase", RARE, RARE);
         case cCHAOS_CODE_COS_PHASE_SHIFT: FILL_CCDETAILS_RETURN(ccd_out, "cosphase", RARE, RARE);
+        case cCHAOS_CODE_SIN_UNIT_INTERVAL_COEFFICIENT: FILL_CCDETAILS_RETURN(ccd_out, "sinuimul", RARE, RARE);
+        case cCHAOS_CODE_COS_UNIT_INTERVAL_COEFFICIENT: FILL_CCDETAILS_RETURN(ccd_out, "cosuimul", RARE, RARE);
         case cCHAOS_CODE_KICK_DIVE_SWAP: FILL_CCDETAILS_RETURN(ccd_out, "kckdveswp", COMMON * 2, COMMON);
         case cCHAOS_CODE_OBJ_GRAV_ROLL: FILL_CCDETAILS_RETURN(ccd_out, "objgrvroll", COMMON, COMMON);
         case cCHAOS_CODE_FWD_GRAV_ROLL: FILL_CCDETAILS_RETURN(ccd_out, "fwdgrvroll", COMMON, COMMON);
@@ -255,6 +283,13 @@ void chaos_roll_entry(chaos_entry_t* a_entry) {
             //break; // identical code result from sin/cos so collapse
         case cCHAOS_CODE_COS_PHASE_SHIFT:
             a_entry->m_code_data.u_cos_phase_shift = (s16) (random_u16() % 512 - 256);
+            break;
+        case cCHAOS_CODE_SIN_UNIT_INTERVAL_COEFFICIENT:
+            //a_entry->m_code_data.u_sin_ui_coeff = (f32)(random_u16() % 100 + 900) / 1000.0f;
+            //break; // identical code result from sin/cos so collapse
+        case cCHAOS_CODE_COS_UNIT_INTERVAL_COEFFICIENT:
+            // random u16 in [900, 999] then cast to f32, div 1000.0f
+            a_entry->m_code_data.u_sin_ui_coeff = (f32)(random_u16() % 100 + 900) / 1000.0f;
             break;
         case cCHAOS_CODE_KICK_DIVE_SWAP:
             break;
