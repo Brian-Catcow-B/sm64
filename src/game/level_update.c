@@ -8,7 +8,7 @@
 #include "game_init.h"
 #include "level_update.h"
 #include "main.h"
-#include "engine/behavior_script.h"
+#include "engine/chaos.h"
 #include "engine/math_util.h"
 #include "engine/graph_node.h"
 #include "area.h"

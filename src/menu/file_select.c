@@ -4,7 +4,7 @@
 #include "audio/external.h"
 #include "behavior_data.h"
 #include "dialog_ids.h"
-#include "engine/behavior_script.h"
+#include "engine/chaos.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
 #include "file_select.h"
