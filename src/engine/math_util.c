@@ -34,7 +34,19 @@ struct cache_chaos_trig_t {
 struct cache_chaos_trig_t gCacheChaosSin;
 struct cache_chaos_trig_t gCacheChaosCos;
 
+//#define SINX_IS_X_CUTOFF_INDEX 1024
+//#define SIZEOF_LUT(lut) (sizeof(lut) / sizeof(lut[0]))
 f32 sin_fn(s32 x) {
+    //u16 idx = (u16) x >> 4;
+    //if (SINX_IS_X_CUTOFF_INDEX > idx) {
+        //const f32 val_low = 0.0f;
+        //const f32 val_high = 1.0f;
+        //const f32 val_diff = val_high - val_low;
+        //const f32 val_step = val_diff / (f32) SIZEOF_LUT(gSineTable);
+        //return val_step * idx;
+    //} //else if (idx > SIZEOF_LUT(gSineTable) - SINX_IS_X_CUTOFF_INDEX) {
+
+    //}
     // sin(x) = x can crash
     //if (random_u16() % 64 == 0)
         //return (f32) min(1, max(-1, x/2));
